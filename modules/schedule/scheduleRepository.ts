@@ -1,7 +1,13 @@
 import { Schedules } from "./../../lib/database/entities/schedules";
 import { AppDataSource } from "../../lib/database/data-source";
+import { Service, Token } from "typedi";
 
-export default class UserRepository {
+export const SCHEDULE_REPO_TOKEN = new Token<ScheduleRepository>(
+	"SCHEDULE_REPO_TOKEN",
+);
+
+@Service(SCHEDULE_REPO_TOKEN)
+export default class ScheduleRepository {
 	private async initialize() {
 		await AppDataSource.initialize();
 	}

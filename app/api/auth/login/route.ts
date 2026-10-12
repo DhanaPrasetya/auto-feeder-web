@@ -1,11 +1,11 @@
 import "reflect-metadata";
 import { Container } from "typedi";
 import { NextRequest, NextResponse } from "next/server";
-import UserService from "@/modules/users/userService";
 import { LoginSchema } from "@/app/actions/login";
 import { errorHandler } from "@/lib/helper/errorHandler";
+import { USER_SERVICE_TOKEN } from "@/modules/users/userService";
 
-const userService = Container.get(UserService);
+const userService = Container.get(USER_SERVICE_TOKEN);
 
 export const POST = errorHandler(async (req: NextRequest) => {
 	const body: unknown = await req.json();
@@ -32,7 +32,7 @@ export const POST = errorHandler(async (req: NextRequest) => {
 		{ status: 200 },
 	);
 
-	response.cookies.set("authToken", accessToken, {
+	response.cookies.set("accessToken", accessToken, {
 		httpOnly: true,
 		secure: process.env.ENV === "prod",
 		sameSite: "lax",

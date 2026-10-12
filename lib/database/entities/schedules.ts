@@ -4,12 +4,11 @@ import {
 	Column,
 	JoinColumn,
 	OneToOne,
-	CreateDateColumn,
 	UpdateDateColumn,
 	OneToMany,
 } from "typeorm";
-import { User } from "./user";
-import { FeedLogs } from "./feed_logs";
+import type { User } from "./user";
+import type { FeedLogs } from "./feed_logs";
 
 @Entity()
 export class Schedules {
@@ -19,17 +18,17 @@ export class Schedules {
 	@Column({ type: "timestamp", array: true })
 	time_array: Date[];
 
-	@CreateDateColumn({ type: "timestamp" })
+	@Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
 	created_at: Date;
 
-	@UpdateDateColumn({ type: "timestamp" })
+	@UpdateDateColumn({ type: "timestamp", nullable: true })
 	updated_at: Date;
 
-	@OneToOne(() => User, (user) => user.schedules, { onDelete: "RESTRICT" })
+	@OneToOne("User", (user: User) => user.schedules, { onDelete: "RESTRICT" })
 	@JoinColumn({ name: "user_id" })
 	user: User;
 
-	@OneToMany(() => FeedLogs, (feedLogs) => feedLogs.schedules, {
+	@OneToMany("FeedLogs", (feedLogs: FeedLogs) => feedLogs.schedules, {
 		onDelete: "RESTRICT",
 	})
 	FeedLogs: FeedLogs;

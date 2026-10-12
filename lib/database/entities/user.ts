@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from "typeorm";
-import { Schedules } from "./schedules";
+import type { Schedules } from "./schedules";
 
 @Entity()
 export class User {
@@ -20,11 +20,11 @@ export class User {
 
 	@Column({
 		type: "timestamp",
-		default: () => "CURRENT_TIMESTAMP",
 		onUpdate: "CURRENT_TIMESTAMP",
+		nullable: true,
 	})
-	updatedAt: Date;
+	updated_at: Date;
 
-	@OneToOne(() => Schedules, (schedules) => schedules.user)
+	@OneToOne("Schedules", (schedules: Schedules) => schedules.user)
 	schedules: Schedules;
 }

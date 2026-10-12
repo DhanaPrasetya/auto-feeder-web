@@ -1,10 +1,14 @@
 import "reflect-metadata";
-import { Service } from "typedi";
+import { Service, Token } from "typedi";
 import ScheduleRepository from "./scheduleRepository";
 import { Schedules } from "@/lib/database/entities/schedules";
 
-@Service()
-export default class UserService {
+export const SCHEDULE_SERVICE_TOKEN = new Token<ScheduleService>(
+	"SCHEDULE_SERVICE_TOKEN",
+);
+
+@Service(SCHEDULE_SERVICE_TOKEN)
+export default class ScheduleService {
 	constructor(private scheduleRepository: ScheduleRepository) {}
 
 	async addSchedule(schedule: Schedules): Promise<Schedules> {

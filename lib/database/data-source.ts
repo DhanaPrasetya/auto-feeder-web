@@ -3,6 +3,10 @@ import { DataSource } from "typeorm";
 import { User } from "./entities/user";
 import { Schedules } from "./entities/schedules";
 import { FeedLogs } from "./entities/feed_logs";
+import { loadEnvConfig } from "@next/env";
+import pg from "pg";
+
+loadEnvConfig(process.cwd());
 
 let synchronizeValue: boolean = false;
 
@@ -20,6 +24,7 @@ export const AppDataSource = new DataSource({
 	synchronize: synchronizeValue,
 	logging: false,
 	entities: [User, Schedules, FeedLogs],
+	driver: pg,
 	subscribers: [],
-	migrations: [],
+	migrations: ["./lib/database/migrations/*.{ts,js}"], // Migrations path
 });

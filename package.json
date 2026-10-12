@@ -1,35 +1,43 @@
 {
-  "name": "nextjs",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
-  },
-  "dependencies": {
-    "argon2": "^0.45.1",
-    "jsonwebtoken": "^9.0.3",
-    "mqtt": "^5.16.0",
-    "next": "16.4.0",
-    "pg": "^8.23.1",
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
-    "reflect-metadata": "^0.2.2",
-    "typedi": "^0.10.0",
-    "typeorm": "^1.1.2",
-    "zod": "^4.6.5"
-  },
-  "devDependencies": {
-    "@tailwindcss/turbopack": "^4",
-    "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.4.0",
-    "tailwindcss": "^4",
-    "typescript": "^5"
-  }
+	"name": "nextjs",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "eslint",
+		"typeorm": "TS_NODE_PROJECT=tsconfig.typeorm.json typeorm-ts-node-commonjs",
+		"migration:generate": "npm run typeorm -- migration:generate -d ./lib/database/data-source.ts",
+		"migration:generate:example": "npm run migration:run -- ./lib/database/migrations/InitializeTable",
+		"migration:run": "npm run typeorm -- migration:run -d ./lib/database/data-source.ts",
+		"migration:revert": "npm run typeorm -- migration:revert -d ./lib/database/data-source.ts",
+		"seed": "TS_NODE_PROJECT=tsconfig.typeorm.json ts-node ./lib/database/seeder/user.ts"
+	},
+	"dependencies": {
+		"argon2": "^0.45.1",
+		"jose": "^6.2.12",
+		"mqtt": "^5.16.0",
+		"next": "16.4.0",
+		"pg": "^8.23.1",
+		"react": "19.3.0",
+		"react-dom": "19.3.0",
+		"reflect-metadata": "^0.2.2",
+		"ts-node": "^10.9.2",
+		"typedi": "^0.10.0",
+		"typeorm": "^1.1.2",
+		"zod": "^4.6.5"
+	},
+	"devDependencies": {
+		"@tailwindcss/turbopack": "^4",
+		"@types/jsonwebtoken": "^9.0.10",
+		"@types/node": "^20",
+		"@types/pg": "^8.23.1",
+		"@types/react": "^19",
+		"@types/react-dom": "^19",
+		"eslint": "^9",
+		"eslint-config-next": "16.4.0",
+		"tailwindcss": "^4",
+		"typescript": "^5"
+	}
 }

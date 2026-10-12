@@ -1,30 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
+import { errorHandler } from "@/lib/helper/errorHandler";
 
-// Add feed schedule
-export async function POST(request: NextRequest) {
+// add feed schedule
+export const POST = errorHandler(async (request: NextRequest) => {
 	const body = await request.json();
 
 	return NextResponse.json(
 		{ message: "Feed schedule added successfully !" },
 		{ status: 201 },
 	);
-}
+});
 
-export async function PUT(request: NextRequest) {
+// update feed schedule
+export const GET = errorHandler(async (request: NextRequest) => {
+	const body = await request.json();
+
+	return NextResponse.json(
+		{ message: "Feed schedule fetched successfully !" },
+		{ status: 200 },
+	);
+});
+
+// update feed schedule
+export const PUT = errorHandler(async (request: NextRequest) => {
 	const body = await request.json();
 
 	return NextResponse.json(
 		{ message: "Feed schedule updated successfully !" },
 		{ status: 200 },
 	);
-}
+});
 
-// Delete feed schedule
-export async function DELETE(request: NextRequest) {
+// delete feed schedule
+export const DELETE = errorHandler(async (request: NextRequest) => {
 	const body = await request.json();
 
 	return NextResponse.json(
 		{ message: "Feed schedule deleted successfully !" },
 		{ status: 200 },
 	);
-}
+});
