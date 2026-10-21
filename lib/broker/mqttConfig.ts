@@ -1,43 +1,59 @@
-// import mqtt, { MqttClient, IClientOptions } from "mqtt";
+import mqtt, { MqttClient, IClientOptions } from "mqtt";
 
-// const brokerUrl = process.env.MQTT_URL || "mqtt://localhost:1883";
+const mqttGlobal = globalThis as typeof globalThis & {
+	mqttClient?: MqttClient;
+};
 
-// const options: IClientOptions = {
-// 	clientId: `feeder_api_${Math.random().toString(16).substring(2, 10)}`,
-// 	clean: true,
-// 	connectTimeout: 4000,
-// 	reconnectPeriod: 5000, // Auto-reconnect every 5 seconds
-// };
+export function startMqtt(): MqttClient {
+	if (mqttGlobal.mqttClient) {
+		return mqttGlobal.mqttClient;
+	}
 
-// const client: MqttClient = mqtt.connect(brokerUrl, options);
+	console.log("\n------------------------------\n");
 
-// client.on("connect", () => {
-// 	console.log(`Connected to broker: ${brokerUrl}`);
+	const brokerUrl = process.env.MQTT_URL || "mqtt://localhost:1883";
+	const sendTopic = process.env.SEND_TOPIC || "test/topic";
+	const receiveTopic = process.env.RECEIVE_TOPIC || "test/response";
 
-// 	// Subscribe to a topic upon successful connection
-// 	const targetTopic = process.env.MQTT_TOPIC || "test/topic";
+	const options: IClientOptions = {
+		clientId: `feeder_api_${Math.random().toString(16).substring(2, 10)}`,
+		clean: true,
+		connectTimeout: 4000,
+		reconnectPeriod: 5000,
+	};
+	const client = mqtt.connect(brokerUrl, options);
 
-// 	client.subscribe(targetTopic, { qos: 1 }, (err) => {
-// 		if (!err) {
-// 			console.log(`Successfully subscribed to ${targetTopic}`);
+	client.on("connect", () => {
+		console.log("\n------------------------------\n");
+		console.log(`Connected to broker: ${brokerUrl}`);
 
-// 			// Publish a test message
-// 			const payload = JSON.stringify({ status: "ok", timestamp: Date.now() });
-// 			client.publish(targetTopic, payload, { qos: 1 });
-// 		} else {
-// 			console.error("Subscription error:", err);
-// 		}
-// 	});
-// });
+		client.subscribe(receiveTopic, { qos: 1 }, (error) => {
+			if (error) {
+				console.error("Subscription error:", error);
+				return;
+			}
 
-// // Handle Incoming Messages Type-Safely
-// client.on("message", (topic: string, message: Buffer) => {
-// 	// Payload arrives as a Buffer; convert it to string
-// 	const stringMessage = message.toString();
-// 	console.log(`Received on [${topic}]: ${stringMessage}`);
-// });
+			console.log(`Successfully subscribed to ${receiveTopic}`);
+			const payload = JSON.stringify({ status: "ok", timestamp: Date.now() });
+			client.publish(sendTopic, payload, { qos: 1 }, (publishError) => {
+				if (publishError) {
+					console.error("Publish error:", publishError);
+					return;
+				}
 
-// // Global Error Handling
-// client.on("error", (error: Error) => {
-// 	console.error("MQTT Client Error:", error);
-// });
+				console.log(`Published startup message to ${sendTopic}`);
+			});
+		});
+	});
+
+	client.on("message", (topic: string, message: Buffer) => {
+		console.log(`Received on [${topic}]: ${message.toString()}`);
+	});
+
+	client.on("error", (error: Error) => {
+		console.error("MQTT Client Error:", error);
+	});
+
+	mqttGlobal.mqttClient = client;
+	return client;
+}

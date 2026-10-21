@@ -13,8 +13,6 @@ export const POST = errorHandler(async (request: NextRequest) => {
 
 // update feed schedule
 export const GET = errorHandler(async (request: NextRequest) => {
-	const body = await request.json();
-
 	return NextResponse.json(
 		{ message: "Feed schedule fetched successfully !" },
 		{ status: 200 },

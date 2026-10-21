@@ -22,8 +22,8 @@ export default class ScheduleRepository {
 		return await this.userRepo.save(schedule);
 	}
 
-	async deleteSchedule(id: string): Promise<void> {
-		await this.userRepo.delete(id);
+	async updateSchedule(id: string, data: Partial<Schedules>): Promise<void> {
+		await this.userRepo.update(id, { ...data, updated_at: new Date() });
 	}
 
 	async getScheduleById(id: string): Promise<Schedules | null> {

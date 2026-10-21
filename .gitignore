@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+lib/broker/mosquitto/data
+lib/broker/mosquitto/log
+lib/broker/mosquitto/logs

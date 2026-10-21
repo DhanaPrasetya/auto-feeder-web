@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
 	// This logic only executes for routes defined in the matcher below
 	const accessToken = request.cookies.get("accessToken");
 
@@ -29,5 +29,5 @@ export async function middleware(request: NextRequest) {
 
 // Limit the middleware to specific paths
 export const config = {
-	matcher: ["/api/auth/logout"],
+	matcher: ["/api/auth/logout", "/api/schedules"],
 };
