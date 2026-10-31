@@ -1,22 +1,30 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
-import type { Schedules } from "./schedules";
+import {
+	Entity,
+	PrimaryGeneratedColumn,
+	Column,
+	ManyToOne,
+	JoinColumn,
+	Index,
+	CreateDateColumn,
+} from "typeorm";
+import { Devices } from "./devices";
 
 @Entity()
 export class FeedLogs {
 	@PrimaryGeneratedColumn("uuid")
 	id: string;
 
-	@Column({ name: "schedule_id" })
-	schedule_id: number;
-
-	@Column()
-	time_array: Date;
-
-	@Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+	@CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
 	created_at: Date;
 
-	@OneToMany("Schedules", (schedules: Schedules) => schedules.FeedLogs, {
+	// Explicit JoinColumn mapping to device_id
+	@ManyToOne(() => Devices, (device) => device.feedLogs, {
 		onDelete: "RESTRICT",
 	})
-	schedules: Schedules;
+	@JoinColumn({ name: "device_id" })
+	device: Devices;
+
+	@Column({ type: "uuid", name: "device_id" })
+	@Index()
+	device_id: string;
 }

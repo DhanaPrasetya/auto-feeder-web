@@ -16,8 +16,12 @@ export function startMqtt(): MqttClient {
 	const receiveTopic = process.env.RECEIVE_TOPIC || "test/response";
 
 	const options: IClientOptions = {
-		clientId: `feeder_api_${Math.random().toString(16).substring(2, 10)}`,
-		clean: true,
+		// FIXED CLIENT ID: Required for persistent sessions (clean: false)
+		clientId: "feeder_api_backend_persistent_client",
+
+		// FALSE: Tells the broker to queue QoS 1/2 messages while offline
+		clean: false,
+
 		connectTimeout: 4000,
 		reconnectPeriod: 5000,
 	};
@@ -25,8 +29,10 @@ export function startMqtt(): MqttClient {
 
 	client.on("connect", () => {
 		console.log("\n------------------------------\n");
-		console.log(`Connected to broker: ${brokerUrl}`);
+		console.log(`Connected to broker (Persistent Mode): ${brokerUrl}`);
 
+		// When clean: false, subscription is technically saved on the broker,
+		// but re-subscribing on connect is safe practice in MQTT libraries.
 		client.subscribe(receiveTopic, { qos: 1 }, (error) => {
 			if (error) {
 				console.error("Subscription error:", error);
@@ -34,15 +40,6 @@ export function startMqtt(): MqttClient {
 			}
 
 			console.log(`Successfully subscribed to ${receiveTopic}`);
-			const payload = JSON.stringify({ status: "ok", timestamp: Date.now() });
-			client.publish(sendTopic, payload, { qos: 1 }, (publishError) => {
-				if (publishError) {
-					console.error("Publish error:", publishError);
-					return;
-				}
-
-				console.log(`Published startup message to ${sendTopic}`);
-			});
 		});
 	});
 

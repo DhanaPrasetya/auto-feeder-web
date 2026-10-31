@@ -1,5 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from "typeorm";
-import type { Schedules } from "./schedules";
+import {
+	Entity,
+	PrimaryGeneratedColumn,
+	Column,
+	OneToMany,
+	CreateDateColumn,
+	UpdateDateColumn,
+} from "typeorm";
+import { Devices } from "./devices";
 
 @Entity()
 export class User {
@@ -9,22 +16,18 @@ export class User {
 	@Column()
 	username: string;
 
-	@Column()
+	@Column({ unique: true })
 	email: string;
 
 	@Column()
 	password: string;
 
-	@Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+	@CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
 	created_at: Date;
 
-	@Column({
-		type: "timestamp",
-		onUpdate: "CURRENT_TIMESTAMP",
-		nullable: true,
-	})
+	@UpdateDateColumn({ type: "timestamp", nullable: true })
 	updated_at: Date;
 
-	@OneToOne("Schedules", (schedules: Schedules) => schedules.user)
-	schedules: Schedules;
+	@OneToMany(() => Devices, (devices) => devices.user)
+	devices: Devices[];
 }

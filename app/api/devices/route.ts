@@ -1,35 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import { errorHandler } from "@/lib/helper/errorHandler";
 
-// add feed schedule
+// add device
 export const POST = errorHandler(async (request: NextRequest) => {
-	const body = await request.json();
+	const addDevice = await request.json();
 
 	return NextResponse.json(
-		{ message: "Feed schedule added successfully !" },
+		{ message: "Device added successfully !" },
 		{ status: 201 },
 	);
 });
 
-// update feed schedule
+// get paginated device data
 export const GET = errorHandler(async (request: NextRequest) => {
 	return NextResponse.json(
-		{ message: "Feed schedule fetched successfully !" },
+		{ message: "Device data fetched successfully !" },
 		{ status: 200 },
 	);
 });
 
-// update feed schedule
-export const PUT = errorHandler(async (request: NextRequest) => {
+// update device data
+export const PATCH = errorHandler(async (request: NextRequest) => {
 	const body = await request.json();
 
 	return NextResponse.json(
-		{ message: "Feed schedule updated successfully !" },
+		{ message: "Device data updated successfully !" },
 		{ status: 200 },
 	);
 });
 
-// delete feed schedule
+// delete device data
 export const DELETE = errorHandler(async (request: NextRequest) => {
 	const body = await request.json();
 
