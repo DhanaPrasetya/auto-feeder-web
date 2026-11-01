@@ -1,11 +1,12 @@
 import "reflect-metadata";
-import { Service, Token } from "typedi";
+import { Inject, Service, Token } from "typedi";
 import DeviceRepository from "./deviceRepository";
 import { Devices } from "@/lib/database/entities/devices";
-import IotRepository from "../iot/iotRepository";
+import IotRepository, { IOT_REPO_TOKEN } from "../iot/iotRepository";
 import crypto from "crypto";
 import { addDeviceData } from "./deviceRepository";
 import { sendTopicPattern, receiveTopicPattern } from "@/constant/topicPattern";
+import { DEVICE_REPO_TOKEN } from "./deviceRepository";
 
 function generateRandomBase62(length: number): string {
 	const charset =
@@ -28,8 +29,10 @@ export const DEVICE_SERVICE_TOKEN = new Token<DeviceService>(
 @Service(DEVICE_SERVICE_TOKEN)
 export default class DeviceService {
 	constructor(
-		private deviceRepository: DeviceRepository,
-		private iotRepository: IotRepository,
+		@Inject(DEVICE_REPO_TOKEN)
+		private readonly deviceRepository: DeviceRepository,
+		@Inject(IOT_REPO_TOKEN)
+		private readonly iotRepository: IotRepository,
 	) {}
 
 	async addDevice(deviceData: addDeviceData): Promise<object> {
@@ -87,5 +90,13 @@ export default class DeviceService {
 
 	async getDeviceById(id: string): Promise<Devices | null> {
 		return await this.deviceRepository.getDeviceById(id);
+	}
+
+	async getDeviceDataByReceiveTopic(
+		receive_topic: string,
+	): Promise<Devices | null> {
+		return await this.deviceRepository.getDeviceDataByReceiveTopic(
+			receive_topic,
+		);
 	}
 }

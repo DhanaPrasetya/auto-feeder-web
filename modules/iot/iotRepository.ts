@@ -1,22 +1,40 @@
+import "reflect-metadata";
 import { startMqtt } from "../../lib/broker/mqttConfig";
+import { Service, Token } from "typedi";
 
-export const IOT_REPO_TOKEN = Symbol("IOT_REPO_TOKEN");
+export const IOT_REPO_TOKEN = new Token<IotRepository>("IOT_REPO_TOKEN");
 
-export interface IotResponse {
-	identifier: string;
-	status: string;
+export type IncomingMessage = {
+	receiveTopic: string;
+	message: string;
+};
+
+type PublishMessage = {
+	sendTopic?: string;
 	[key: string]: unknown;
-}
+};
 
+@Service({ id: IOT_REPO_TOKEN, global: true })
 export default class IotRepository {
+	private readonly client = startMqtt();
+	private readonly receiveTopic =
+		process.env.RECEIVE_TOPIC || "test/topic";
+	private listenPromise: Promise<void> | null = null;
+
 	public async publish(message: unknown): Promise<void> {
-		const client = startMqtt();
-		const sendTopic = process.env.SEND_TOPIC || "test/topic";
+		const publishMessage =
+			typeof message === "object" && message !== null
+				? (message as PublishMessage)
+				: undefined;
+		const sendTopic =
+			publishMessage?.sendTopic ||
+			process.env.SEND_TOPIC ||
+			"test/topic";
 		const payload =
 			typeof message === "string" ? message : JSON.stringify(message);
 
 		await new Promise<void>((resolve, reject) => {
-			client.publish(sendTopic, payload, { qos: 1 }, (error) => {
+			this.client.publish(sendTopic, payload, { qos: 1 }, (error) => {
 				if (error) {
 					reject(error);
 					return;
@@ -28,56 +46,52 @@ export default class IotRepository {
 	}
 
 	public async listen(
-		identifier: string,
-		topic: string = process.env.RECEIVE_TOPIC || "test/topic",
-		timeoutMs = 10000,
-	): Promise<IotResponse> {
-		const client = startMqtt();
+		onMessageReceived: (response: IncomingMessage) => void | Promise<void>,
+	): Promise<void> {
+		if (!this.listenPromise) {
+			this.listenPromise = new Promise<void>((resolve, reject) => {
+				this.client.subscribe(
+					this.receiveTopic,
+					{ qos: 1 },
+					(error) => {
+						if (error) {
+							this.listenPromise = null;
+							reject(error);
+							return;
+						}
 
-		return new Promise((resolve, reject) => {
-			let timeout: NodeJS.Timeout;
+						console.log(
+							`Successfully listening persistently on: ${this.receiveTopic}`,
+						);
 
-			const cleanup = () => {
-				clearTimeout(timeout);
-				client.off("message", handleMessage);
-			};
+						this.client.on(
+							"message",
+							(receivedTopic: string, message: Buffer) => {
+								if (receivedTopic !== this.receiveTopic) {
+									return;
+								}
 
-			const handleMessage = (receivedTopic: string, message: Buffer) => {
-				if (receivedTopic !== topic) {
-					return;
-				}
+								const incomingMessage: IncomingMessage = {
+									receiveTopic: receivedTopic,
+									message: message.toString(),
+								};
 
-				let response: IotResponse;
-				try {
-					response = JSON.parse(message.toString()) as IotResponse;
-				} catch {
-					return;
-				}
-
-				if (response.identifier !== identifier) {
-					return;
-				}
-
-				cleanup();
-				resolve(response);
-			};
-
-			timeout = setTimeout(() => {
-				cleanup();
-				reject(
-					new Error(
-						`Timed out waiting for MQTT response with identifier "${identifier}"`,
-					),
+								Promise.resolve(onMessageReceived(incomingMessage)).catch(
+									(error) => {
+										console.error(
+											"Error processing incoming MQTT message:",
+											error,
+										);
+									},
+								);
+							},
+						);
+						resolve();
+					},
 				);
-			}, timeoutMs);
-
-			client.on("message", handleMessage);
-			client.subscribe(topic, { qos: 1 }, (error) => {
-				if (error) {
-					cleanup();
-					reject(error);
-				}
 			});
-		});
+		}
+
+		await this.listenPromise;
 	}
 }

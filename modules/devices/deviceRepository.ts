@@ -48,4 +48,10 @@ export default class DeviceRepository {
 	async getDeviceById(id: string): Promise<Devices | null> {
 		return await this.deviceRepo.findOneBy({ id });
 	}
+
+	async getDeviceDataByReceiveTopic(
+		receive_topic: string,
+	): Promise<Devices | null> {
+		return await this.deviceRepo.findOneBy({ receive_topic });
+	}
 }

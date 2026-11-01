@@ -19,9 +19,9 @@ export function startMqtt(): MqttClient {
 		// FIXED CLIENT ID: Required for persistent sessions (clean: false)
 		clientId: "feeder_api_backend_persistent_client",
 
-		// FALSE: Tells the broker to queue QoS 1/2 messages while offline
+		// Persistent session: clean: false means the broker will store subscriptions and undelivered messages for this client
 		clean: false,
-
+		keepalive: 60,
 		connectTimeout: 4000,
 		reconnectPeriod: 5000,
 	};

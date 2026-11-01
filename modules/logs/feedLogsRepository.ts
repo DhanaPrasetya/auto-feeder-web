@@ -1,11 +1,10 @@
 import { FeedLogs } from "../../lib/database/entities/feed_logs";
 import { AppDataSource } from "../../lib/database/data-source";
 import { Service, Token } from "typedi";
-import { NotFoundError } from "@/lib/helper/errors";
 
-export const LOGS_REPO_TOKEN = new Token<FeedLogs>("LOGS_REPO_TOKEN");
+export const FEED_LOGS_REPO_TOKEN = new Token<FeedLogs>("LOGS_REPO_TOKEN");
 
-@Service(LOGS_REPO_TOKEN)
+@Service(FEED_LOGS_REPO_TOKEN)
 export default class LogsRepository {
 	private async initialize() {
 		await AppDataSource.initialize();

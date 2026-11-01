@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { User } from "./entities/user";
-import { Schedules } from "./entities/schedules";
+import { Devices } from "./entities/devices";
 import { FeedLogs } from "./entities/feed_logs";
 import { loadEnvConfig } from "@next/env";
 import pg from "pg";
@@ -23,7 +23,7 @@ export const AppDataSource = new DataSource({
 	database: process.env.DB_NAME,
 	synchronize: synchronizeValue,
 	logging: false,
-	entities: [User, Schedules, FeedLogs],
+	entities: [User, Devices, FeedLogs],
 	driver: pg,
 	subscribers: [],
 	migrations: ["./lib/database/migrations/*.{ts,js}"], // Migrations path

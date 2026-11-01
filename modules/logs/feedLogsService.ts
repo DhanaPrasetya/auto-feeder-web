@@ -1,7 +1,7 @@
 import "reflect-metadata";
-import { Service, Token } from "typedi";
-import DeviceRepository from "./feedLogsRepository";
-import IotRepository from "../iot/iotRepository";
+import { Inject, Service, Token } from "typedi";
+import FeedLogsRepository from "./feedLogsRepository";
+import { FEED_LOGS_REPO_TOKEN } from "./feedLogsRepository";
 import { FeedLogs } from "@/lib/database/entities/feed_logs";
 
 export const FEED_LOGS_SERVICE_TOKEN = new Token<FeedLogsService>(
@@ -11,13 +11,13 @@ export const FEED_LOGS_SERVICE_TOKEN = new Token<FeedLogsService>(
 @Service(FEED_LOGS_SERVICE_TOKEN)
 export default class FeedLogsService {
 	constructor(
-		private deviceRepository: DeviceRepository,
-		private iotRepository: IotRepository,
+		@Inject(FEED_LOGS_REPO_TOKEN)
+		private readonly feedLogRepository: FeedLogsRepository,
 	) {}
 
 	async addLogs(device_id: string): Promise<void> {
 		try {
-			await this.deviceRepository.addLogs(device_id);
+			await this.feedLogRepository.addLogs(device_id);
 		} catch (error) {
 			console.error(error);
 			throw error;
@@ -30,7 +30,11 @@ export default class FeedLogsService {
 		date: Date,
 	): Promise<FeedLogs[]> {
 		try {
-			return await this.deviceRepository.getLogsIndex(user_id, device_id, date);
+			return await this.feedLogRepository.getLogsIndex(
+				user_id,
+				device_id,
+				date,
+			);
 		} catch (error) {
 			console.error(error);
 			throw error;
